@@ -4,7 +4,7 @@ wget https://github.com/vmware-tanzu/velero/releases/download/v1.9.1/velero-v1.9
 tar -xf velero-v1.9.1-linux-amd64.tar.gz
 sleep 3
 cd velero-v1.9.1-linux-amd64
-cp velero /usr/local/bin
+sudo cp velero /usr/local/bin
 cd ..
 rm -r velero-v1.9.1-linux-amd64
 
@@ -34,7 +34,7 @@ if [[ $(gcloud iam service-accounts list | grep Velero service account) ]];then
     storage.objects.list
     )
 
-    if [[ gcloud iam roles list --project=$PROJECT_ID | grep "Velero Server"]];
+    if [[ $(gcloud iam roles list --project=$PROJECT_ID | grep "Velero Server") ]];
     then
         echo "Rol daha önce oluşturulmuş."
     else
