@@ -69,3 +69,4 @@ if [[ $(gcloud iam service-accounts list | grep Velero service account) ]];then
     --backup-location-config serviceAccount=[$GSA_NAME]@[$PROJECT_ID].iam.gserviceaccount.com \
 else
     echo "Service account bulunamadı işlem iptal edildi."
+fi
