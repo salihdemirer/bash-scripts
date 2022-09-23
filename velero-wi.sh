@@ -41,7 +41,7 @@ else
     # Policy binding işlemi.
     gcloud projects add-iam-policy-binding $PROJECT_ID --member serviceAccount:$SERVICE_ACCOUNT_EMAIL --role projects/$PROJECT_ID/roles/velero.server
     # Bucket üzerine yetkilendirme için.
-    gsutil iam ch serviceAccount:$SERVICE_ACCOUNT_EMAIL:objectAdmin gs://${BUCKET}
+    gsutil iam ch serviceAccount:$SERVICE_ACCOUNT_EMAIL:objectAdmin gs://$BUCKET
     # Velero için namespace oluşturulması.
     NAMESPACE=velero
     kubectl create namespace $NAMESPACE
@@ -49,8 +49,8 @@ else
     KSA_NAME=$3
     kubectl create serviceaccount $KSA_NAME --namespace $NAMESPACE
     # Kubernetes Service Account'unun Google Service Account üyesi yapılması.
-    gcloud iam service-accounts add-iam-policy-binding --role roles/iam.workloadIdentityUser --member "serviceAccount:${PROJECT_ID}.svc.id.goog[$NAMESPACE/$KSA_NAME]" ${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
-    kubectl annotate serviceaccount $KSA_NAME --namespace $NAMESPACE iam.gke.io/gcp-service-account=${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+    gcloud iam service-accounts add-iam-policy-binding $GSA_NAME@$PROJECT_ID.iam.gserviceaccount.com --role roles/iam.workloadIdentityUser --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/$KSA_NAME]" 
+    kubectl annotate serviceaccount $KSA_NAME --namespace $NAMESPACE iam.gke.io/gcp-service-account=$GSA_NAME@$PROJECT_ID.iam.gserviceaccount.com
     # Velero binary dosyalarının indirilmesi.
     if [[ -z $(ls | grep velero-v1.9.1-linux-amd64.tar.gz) ]]; then
     pwd_=$(pwd)
@@ -64,7 +64,7 @@ else
     rm -r "$pwd_/$extension"
     fi
     # Velero kurulumu.
-    velero install --provider gcp --plugins velero/velero-plugin-for-gcp:v1.5.0 --bucket $BUCKET --no-secret --sa-annotations iam.gke.io/gcp-service-account=${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com --backup-location-config serviceAccount=[$GSA_NAME]@[$PROJECT_ID].iam.gserviceaccount.com
+    velero install --provider gcp --plugins velero/velero-plugin-for-gcp:v1.5.0 --bucket $BUCKET --no-secret --sa-annotations iam.gke.io/gcp-service-account=$GSA_NAME@$PROJECT_ID.iam.gserviceaccount.com --backup-location-config serviceAccount=[$GSA_NAME]@[$PROJECT_ID].iam.gserviceaccount.com
 
 fi
 
