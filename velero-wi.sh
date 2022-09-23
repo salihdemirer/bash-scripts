@@ -50,6 +50,7 @@ else
     kubectl create serviceaccount $KSA_NAME --namespace $NAMESPACE
     # Kubernetes Service Account'unun Google Service Account üyesi yapılması.
     gcloud iam service-accounts add-iam-policy-binding --role roles/iam.workloadIdentityUser --member "serviceAccount:${PROJECT_ID}.svc.id.goog[$NAMESPACE/$KSA_NAME]" ${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+    kubectl annotate serviceaccount $KSA_NAME --namespace $NAMESPACE iam.gke.io/gcp-service-account=${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
     # Velero binary dosyalarının indirilmesi.
     if [[ -z $(ls | grep velero-v1.9.1-linux-amd64.tar.gz) ]]; then
     pwd_=$(pwd)
