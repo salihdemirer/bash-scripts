@@ -1,12 +1,15 @@
 #!/bin/bash
-# -------------------------------------------- Uyarılar ------------------------------------------------------
-# Service Account isimleri değiştirildiği taktirde yaml içerisinde gerekli alanların değiştirilmesi gerekiyor.
-
+# -------------------------------------------- Uyarılar --------------------------------------------------------------------------------
+# Parametre olarak sadece Bucket ismi alıyor.
+# Service Account isimleri değiştirildiği taktirde velero deployment yaml içerisinde serviceAccount alanlarının değiştirilmesi gerekiyor.
+#----------------------------------------------------------------------------------------------------------------------------------------
+# Doğru projede olduğumuzun kontrolü.
 read -r -p "Doğru projede olduğundan emin misin? [y/N] " response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        # ProjectID değerimizi ortam değişkenine aktarılması.
         PROJECT_ID=$(gcloud config get-value project)
         BUCKET=$1
-        # Girilen bucketin önceden oluşturulup oluşturulmadığına bakılıyor.
+        # Girilen bucketin önceden oluşturulup oluşturulmadığına bakılması.
         if [[ -z $(gcloud storage buckets list | grep -x "name: $BUCKET") ]]; then
             echo "Bucket oluşturuluyor..."
             BUCKET_NAME=$BUCKET
@@ -18,6 +21,7 @@ read -r -p "Doğru projede olduğundan emin misin? [y/N] " response
                 exit
             fi
         else
+            # İsimlendirilen Bucket'ın hesabımızdaki storage üzerinde bulunması durumunda.
             read -r -p "Bu isimde bir bucket var backup-location olarak kullanılsın mı? [y/N] " response
             if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
                 BUCKET_NAME=$BUCKET
@@ -30,11 +34,11 @@ read -r -p "Doğru projede olduğundan emin misin? [y/N] " response
         GSA_NAME=velero
         gcloud iam service-accounts create $GSA_NAME --display-name "Velero service account"
 
-        # Hesap oluşturulmuş mu kontrol edelim.
+        # Hesap oluşumu kontrolü.
         if [[ -z $(gcloud iam service-accounts list | grep "Velero service account") ]]; then
             echo "Service Account oluşturulmamış işlem sonlandırılıyor..."
         else
-            # Servis Account mail adresi ortam değişkenine aktarıldı.
+            # Servis Account mail adresinin ortam değişkenine aktarılması.
             SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list --filter="displayName:Velero service account" --format 'value(email)')
             # Permissionların role atanması için listesinin oluşturulması.
             ROLE_PERMISSIONS=(
